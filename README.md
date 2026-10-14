@@ -1,2 +1,2 @@
-# TC-proyecto
-proyecto teoria de computacion de USIL.
+# teoria-computacion
+Curso teoria de computacion USIL 2026 - 02
