@@ -16,10 +16,7 @@
                         'primary-container': '#3b49df',
                         secondary: '#006a63',
                         surface: '#f8f9ff',
-                        'surface-low': '#eff4ff',
-                        'surface-lowest': '#ffffff',
-                        'on-surface': '#0b1c30',
-                        'on-surface-variant': '#454655'
+                        'on-surface': '#0b1c30'
                     },
                     fontFamily: {
                         sans: ['Geist', 'sans-serif'],
@@ -32,199 +29,97 @@
 </head>
 <body class="bg-surface font-sans text-on-surface antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- HEADER / BARRA DE NAVEGACIÓN -->
     <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div class="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-primary text-2xl">terminal</span>
-                <span class="font-semibold text-lg tracking-tight text-on-surface">TechLogis — Analizador Léxico y Sintáctico</span>
+                <span class="font-semibold text-lg tracking-tight text-on-surface">TechLogis — Analizador</span>
             </div>
             <div class="flex items-center gap-2 text-xs font-mono bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Motor DFA/CFG v1.0 — Activo</span>
+                <span>Motor DFA/CFG — Activo</span>
             </div>
         </div>
     </header>
 
     <main class="max-w-[1400px] mx-auto px-6 py-8 flex-1 w-full space-y-8">
         
-        <!-- HEADER DE PÁGINA -->
-        <section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <section class="flex flex-col justify-between gap-4">
             <div class="space-y-1 max-w-3xl">
                 <div class="flex items-center gap-2 text-primary font-mono text-xs font-semibold tracking-wider">
                     <span class="material-symbols-outlined text-sm">schema</span>
                     <span>TEORÍA DE COMPILADORES & AUTÓMATAS</span>
                 </div>
-                <h1 class="text-3xl font-bold tracking-tight text-on-surface">
-                    Validación Documental de Órdenes de Compra
-                </h1>
-                <p class="text-slate-600 text-sm">
-                    {{ enunciado.descripcion }}
-                </p>
+                <h1 class="text-3xl font-bold tracking-tight">Validación Documental</h1>
+                <p class="text-slate-600 text-sm">{{ enunciado.descripcion }}</p>
             </div>
         </section>
 
-        <!-- SECCIÓN ENUNCIADO Y REGLAS -->
-        <section class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h2 class="text-base font-semibold text-on-surface flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">description</span>
-                    Enunciado del Proyecto y Gramática Libre de Contexto (CFG)
-                </h2>
-                <span class="text-xs font-mono bg-indigo-50 text-primary px-2.5 py-1 rounded-md border border-indigo-100">
-                    {{ enunciado.empresa }}
-                </span>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <p class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Reglas para Lexemas / Tokens (DFA):</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-                        {% for regla in enunciado.reglas %}
-                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                            <span class="text-primary font-bold">{{ regla.token }}</span>
-                            <div class="text-[11px] text-slate-500 truncate mt-0.5">Patrón: {{ regla.patron }}</div>
-                            <div class="text-[11px] text-emerald-700 mt-0.5">Ejemplo: {{ regla.ejemplo }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <p class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Estructura Sintáctica Esperada (CFG):</p>
-                    <div class="p-4 bg-slate-900 text-slate-100 rounded-lg font-mono text-xs space-y-2">
-                        <div class="text-amber-400">// Regla Sintáctica</div>
-                        <div class="text-emerald-400 font-bold text-sm">{{ enunciado.cfg }}</div>
-                        <div class="text-slate-400 text-[11px] pt-2 border-t border-slate-800">
-                            Ejemplo de orden válida: <span class="text-white bg-slate-800 px-2 py-0.5 rounded">{{ ejemplo }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- FORMULARIO DE ENTRADA -->
+        <!-- Formulario -->
         <section class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
             <form method="POST" enctype="multipart/form-data" class="space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <!-- ÁREA DE TEXTO -->
                     <div class="lg:col-span-8 space-y-2">
                         <label for="codigo" class="flex justify-between text-xs font-semibold text-slate-600">
-                            <span>1. Texto o Lenguaje Inicial a Analizar</span>
-                            <span class="font-mono text-slate-400">Codificación: UTF-8</span>
+                            <span>1. Texto a Analizar</span>
                         </label>
-                        <textarea id="codigo" name="codigo" rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white transition-all placeholder:text-slate-400" placeholder="Escriba o pegue la orden de compra aquí...">{{ codigo }}</textarea>
+                        <textarea id="codigo" name="codigo" rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">{{ codigo }}</textarea>
                     </div>
-
-                    <!-- DROPAREA DE ARCHIVO -->
                     <div class="lg:col-span-4 space-y-2">
-                        <label class="text-xs font-semibold text-slate-600">2. O subir un archivo de texto (.txt)</label>
-                        <div class="h-[128px] border-2 border-dashed border-slate-200 hover:border-primary/50 rounded-xl bg-slate-50 hover:bg-indigo-50/30 transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer relative" onclick="document.getElementById('archivo').click()">
+                        <label class="text-xs font-semibold text-slate-600">2. O subir un archivo (.txt)</label>
+                        <div class="h-[128px] border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-indigo-50/30 flex flex-col items-center justify-center cursor-pointer" onclick="document.getElementById('archivo').click()">
                             <span class="material-symbols-outlined text-primary text-3xl mb-1">upload_file</span>
-                            <span class="text-xs font-medium text-slate-700">Arrastra tu archivo aquí o haz clic</span>
-                            <span class="text-[11px] text-slate-400 mt-1">Soporta archivos .txt</span>
+                            <span class="text-xs font-medium">Subir archivo</span>
                             <input type="file" id="archivo" name="archivo" accept=".txt" class="hidden" onchange="this.form.submit()">
                         </div>
                     </div>
                 </div>
-
-                <!-- BOTONES DE ACCIÓN -->
-                <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-primary-container text-white font-medium text-sm rounded-lg shadow-sm transition-all flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg">analytics</span>
-                            <span>Generar TOKENS y LEXEMAS</span>
-                        </button>
-                        <button type="button" onclick="document.getElementById('codigo').value='{{ ejemplo }}'" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-lg transition-colors flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base">restore</span>
-                            <span>Cargar Ejemplo</span>
-                        </button>
-                    </div>
-
-                    <!-- TARJETAS CONTRADORAS -->
-                    {% if tokens is not none %}
-                    <div class="flex items-center gap-3 font-mono text-xs">
-                        <div class="px-3 py-1.5 bg-slate-100 rounded-lg">
-                            Lexemas Totales: <span class="font-bold text-slate-800">{{ tot_lexemas }}</span>
-                        </div>
-                        <div class="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg">
-                            Válidos: <span class="font-bold">{{ tot_validos }}</span>
-                        </div>
-                        {% if tot_errores > 0 %}
-                        <div class="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg">
-                            Errores: <span class="font-bold">{{ tot_errores }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                    <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-primary-container text-white font-medium text-sm rounded-lg shadow-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined">analytics</span> Generar Análisis
+                    </button>
+                    <button type="button" onclick="document.getElementById('codigo').value='{{ ejemplo }}'" class="px-4 py-2.5 bg-slate-100 text-slate-700 font-medium text-xs rounded-lg">
+                        Cargar Ejemplo
+                    </button>
                 </div>
             </form>
         </section>
 
-        <!-- RESULTADOS DEL ANÁLISIS SINTÁCTICO Y LÉXICO -->
+        <!-- Resultados Generales -->
         {% if tokens is not none %}
         <section class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-6">
-            <div>
-                <h2 class="text-lg font-bold text-on-surface tracking-tight">Resultados del Análisis</h2>
-                <p class="text-xs text-slate-500">Resultado de la verificación léxica (Autómata) y sintáctica (CFG)</p>
-            </div>
-
-            <!-- EVALUACIÓN SINTÁCTICA -->
+            <h2 class="text-lg font-bold">1. Tabla de Lexemas y Verificación Sintáctica</h2>
+            
             <div class="p-4 rounded-xl border {% if sintaxis_valida %} bg-emerald-50 border-emerald-200 text-emerald-900 {% else %} bg-rose-50 border-rose-200 text-rose-900 {% endif %} flex items-center gap-3">
-                <span class="material-symbols-outlined text-2xl">
-                    {% if sintaxis_valida %} check_circle {% else %} cancel {% endif %}
-                </span>
+                <span class="material-symbols-outlined text-2xl">{% if sintaxis_valida %} check_circle {% else %} cancel {% endif %}</span>
                 <div>
-                    <h3 class="font-bold text-sm">
-                        {% if sintaxis_valida %} EVALUACIÓN SINTÁCTICA EXITOSA {% else %} FALLO DE EVALUACIÓN SINTÁCTICA {% endif %}
-                    </h3>
+                    <h3 class="font-bold text-sm">{% if sintaxis_valida %} SINTAXIS EXITOSA {% else %} FALLO SINTÁCTICO {% endif %}</h3>
                     <p class="text-xs mt-0.5">{{ mensaje_sintaxis }}</p>
                 </div>
             </div>
 
-            <!-- TABLA DE TOKENS Y LEXEMAS -->
             <div class="overflow-x-auto rounded-lg border border-slate-200">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-slate-50 text-slate-600 font-mono text-xs uppercase border-b border-slate-200">
-                            <th class="py-3 px-4 font-semibold">1. Lexema Encontrado</th>
-                            <th class="py-3 px-4 font-semibold">2. Token Asignado</th>
-                            <th class="py-3 px-4 font-semibold text-indigo-700">3. Expresión Regular (RegEx)</th>
-                            <th class="py-3 px-4 font-semibold">4. Estado Léxico</th>
-                            <th class="py-3 px-4 font-semibold">5. Detalle y Regla</th>
+                            <th class="py-3 px-4">Lexema</th>
+                            <th class="py-3 px-4">Token Asignado</th>
+                            <th class="py-3 px-4">Expresión Regular</th>
+                            <th class="py-3 px-4">Estado</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-sm">
+                    <tbody class="divide-y divide-slate-100">
                         {% for item in tokens %}
-                        <tr class="hover:bg-slate-50/80 transition-colors">
-                            <td class="py-3 px-4 font-mono font-semibold {% if item.valido %}text-primary{% else %}text-rose-600{% endif %}">
-                                {{ item.lexema }}
-                            </td>
-                            <td class="py-3 px-4 font-mono">
-                                <span class="px-2 py-1 rounded bg-slate-100 text-slate-700 text-xs border border-slate-200 font-medium">
-                                    {{ item.token }}
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 font-mono text-xs">
-                                {% if item.valido %}
-                                    <code class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">{{ item.patron }}</code>
-                                {% else %}
-                                    <code class="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">{{ item.patron }}</code>
-                                {% endif %}
-                            </td>
+                        <tr class="hover:bg-slate-50/80">
+                            <td class="py-3 px-4 font-mono font-semibold {% if item.valido %}text-primary{% else %}text-rose-600{% endif %}">{{ item.lexema }}</td>
+                            <td class="py-3 px-4 font-mono"><span class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200">{{ item.token }}</span></td>
+                            <td class="py-3 px-4 font-mono text-xs"><code class="{% if item.valido %}text-indigo-600 bg-indigo-50 border-indigo-100{% else %}text-slate-500 bg-slate-100 border-slate-200{% endif %} px-1.5 py-0.5 rounded border">{{ item.patron }}</code></td>
                             <td class="py-3 px-4">
                                 {% if item.valido %}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Válido
-                                </span>
+                                <span class="inline-flex gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">Válido</span>
                                 {% else %}
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-medium">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Error
-                                </span>
+                                <span class="inline-flex gap-1 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-medium">Error</span>
                                 {% endif %}
-                            </td>
-                            <td class="py-3 px-4 text-xs text-slate-500 font-sans">
-                                {{ item.detalle }}
                             </td>
                         </tr>
                         {% endfor %}
@@ -232,17 +127,116 @@
                 </table>
             </div>
         </section>
-        {% endif %}
 
+        <!-- SECCIÓN NUEVA: ENCARTES POR CADA LEXEMA CON AUTOMATAS Y QUÍNTUPLAS -->
+        <section class="space-y-6">
+            <h2 class="text-2xl font-bold tracking-tight border-b border-slate-200 pb-2">2. Desglose Teórico: Autómatas, Tablas y Quíntuplas</h2>
+            <p class="text-slate-600 text-sm mb-4">A continuación se genera en código el detalle formal de cada lexema reconocido en la entrada.</p>
+
+            {% for item in tokens %}
+                {% if item.valido and item.token in teoria %}
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+                    <!-- Cabecera del Encarte -->
+                    <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+                        <div>
+                            <span class="text-slate-400 text-xs font-mono uppercase tracking-wider">Lexema analizado:</span>
+                            <div class="text-xl font-bold font-mono text-emerald-400">{{ item.lexema }}</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-slate-400 text-xs font-mono uppercase tracking-wider">Token asociado:</span>
+                            <div class="text-lg font-bold bg-white text-slate-900 px-3 py-1 rounded-md mt-1 inline-block">{{ item.token }}</div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-8">
+                        <!-- Expresión Regular -->
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-2">
+                                <span class="material-symbols-outlined text-primary text-base">code</span> Expresión Regular Generada
+                            </h4>
+                            <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-lg font-mono text-primary text-sm font-bold">
+                                {{ item.patron }}
+                            </div>
+                        </div>
+
+                        <!-- Gráficos de Autómatas (Mermaid) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                                <h4 class="text-sm font-bold text-slate-800 mb-4 text-center">Autómata Finito No Determinista (AFND)</h4>
+                                <div class="flex justify-center bg-white border border-slate-200 rounded p-4 overflow-x-auto">
+                                    <pre class="mermaid bg-transparent">{{ teoria[item.token].afnd }}</pre>
+                                </div>
+                            </div>
+                            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                                <h4 class="text-sm font-bold text-slate-800 mb-4 text-center">Autómata Finito Determinista (AFD)</h4>
+                                <div class="flex justify-center bg-white border border-slate-200 rounded p-4 overflow-x-auto">
+                                    <pre class="mermaid bg-transparent">{{ teoria[item.token].afd }}</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quíntupla y Tabla de Transiciones -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="lg:col-span-1 space-y-2">
+                                <h4 class="text-sm font-bold text-slate-800">Quíntupla (M)</h4>
+                                <pre class="bg-slate-800 text-emerald-400 p-4 rounded-lg font-mono text-xs leading-relaxed whitespace-pre-wrap">{{ teoria[item.token].quintupla }}</pre>
+                            </div>
+                            
+                            <div class="lg:col-span-2 space-y-2">
+                                <h4 class="text-sm font-bold text-slate-800">Tabla de Transiciones (δ)</h4>
+                                <div class="overflow-x-auto rounded-lg border border-slate-200">
+                                    <table class="w-full text-center border-collapse text-xs font-mono">
+                                        <thead>
+                                            <tr class="bg-slate-100 text-slate-600 border-b border-slate-200">
+                                                {% for header in teoria[item.token].tabla.cabeceras %}
+                                                <th class="py-2 px-3 font-semibold">{{ header }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            {% for fila in teoria[item.token].tabla.filas %}
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="py-2 px-3 font-bold bg-slate-50 text-slate-800 text-left border-r border-slate-100">{{ fila[0] }}</td>
+                                                {% for celda in fila[1:] %}
+                                                <td class="py-2 px-3 {% if celda == '∅' %}text-slate-400{% else %}text-primary font-bold{% endif %}">{{ celda }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </section>
+        {% endif %}
     </main>
 
     <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-        <div class="max-w-[1400px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-            <div>TechLogis © 2026 — Proyecto de Teoría de Computación</div>
-            <div class="font-mono">Desarrollado con Flask & TailwindCSS</div>
+        <div class="max-w-[1400px] mx-auto px-6 flex items-center justify-between text-xs text-slate-500">
+            <div>TechLogis © 2026</div>
         </div>
     </footer>
 
+    <!-- LIBRERÍA MERMAID.JS PARA GENERAR GRÁFICOS POR CÓDIGO -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ 
+          startOnLoad: true, 
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#eef2ff',
+            primaryTextColor: '#1c2ac8',
+            primaryBorderColor: '#3b49df',
+            lineColor: '#64748b',
+            secondaryColor: '#f8fafc',
+            tertiaryColor: '#ffffff'
+          }
+      });
+    </script>
 </body>
 </html>
