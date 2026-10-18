@@ -4,16 +4,18 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 # 1. CENTRALIZACIÓN DE REGLAS
+# Se actualizó la RegEx de PRECIO para requerir obligatoriamente el punto decimal
 REGLAS_LENGUAJE = [
     {"token": "ID_PRODUCTO", "patron": r"^[A-Z]{4}-[0-9]{3}$", "ejemplo": "PROD-100", "desc": "4 letras mayúsculas, guion y 3 números"},
     {"token": "CANTIDAD", "patron": r"^[1-9][0-9]*$", "ejemplo": "50", "desc": "Número entero positivo sin ceros a la izquierda"},
-    {"token": "PRECIO", "patron": r"^[0-9]+(\.[0-9]+)?$", "ejemplo": "12.50", "desc": "Número entero o decimal con punto"},
+    {"token": "PRECIO", "patron": r"^[0-9]+\.[0-9]+$", "ejemplo": "12.50", "desc": "Número decimal obligatorio con punto"},
     {"token": "FIN_ORDEN", "patron": r"^;$", "ejemplo": ";", "desc": "Delimitador punto y coma de cierre de orden"}
 ]
 
 PATRONES = [(regla["token"], regla["patron"]) for regla in REGLAS_LENGUAJE]
 
 # 2. BASE DE DATOS TEÓRICA (QUÍNTUPLAS, TABLAS Y CÓDIGO DE GRAFOS)
+# Se actualizó el autómata de PRECIO: q1 ya no es final, solo q3.
 TEORIA_AUTOMATAS = {
     "ID_PRODUCTO": {
         "quintupla": "Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8}\nΣ = {[A-Z], -, [0-9]}\nq0 = q0\nF = {q8}\nδ = Función de transición (ver tabla)",
@@ -41,18 +43,18 @@ TEORIA_AUTOMATAS = {
         "afd": "graph LR\n q0((q0))--\"[1-9]\"-->q1(((q1)))\n q1--\"[0-9]\"-->q1"
     },
     "PRECIO": {
-        "quintupla": "Q = {q0, q1, q2, q3}\nΣ = {[0-9], .}\nq0 = q0\nF = {q1, q3}\nδ = Función de transición (ver tabla)",
+        "quintupla": "Q = {q0, q1, q2, q3}\nΣ = {[0-9], .}\nq0 = q0\nF = {q3}\nδ = Función de transición (ver tabla)",
         "tabla": {
             "cabeceras": ["Estado (Q)", "Entrada [0-9]", "Entrada '.'"],
             "filas": [
                 ["-> q0", "q1", "∅"],
-                ["*q1", "q1", "q2"],
+                ["q1", "q1", "q2"],   # Ya no es estado de aceptación final
                 ["q2", "q3", "∅"],
-                ["*q3", "q3", "∅"]
+                ["*q3", "q3", "∅"]    # Solo es válido si pasamos por el punto decimal
             ]
         },
-        "afnd": "graph LR\n q0((q0))--\"[0-9]\"-->q1((q1))\n q1--\"[0-9]\"-->q1\n q1--\"ε\"-->qF(((qF)))\n q1--\".\"-->q2((q2))\n q2--\"[0-9]\"-->q3(((q3)))\n q3--\"[0-9]\"-->q3",
-        "afd": "graph LR\n q0((q0))--\"[0-9]\"-->q1(((q1)))\n q1--\"[0-9]\"-->q1\n q1--\".\"-->q2((q2))\n q2--\"[0-9]\"-->q3(((q3)))\n q3--\"[0-9]\"-->q3"
+        "afnd": "graph LR\n q0((q0))--\"[0-9]\"-->q1((q1))\n q1--\"[0-9]\"-->q1\n q1--\".\"-->q2((q2))\n q2--\"[0-9]\"-->q3(((q3)))\n q3--\"[0-9]\"-->q3",
+        "afd": "graph LR\n q0((q0))--\"[0-9]\"-->q1((q1))\n q1--\"[0-9]\"-->q1\n q1--\".\"-->q2((q2))\n q2--\"[0-9]\"-->q3(((q3)))\n q3--\"[0-9]\"-->q3"
     },
     "FIN_ORDEN": {
         "quintupla": "Q = {q0, q1}\nΣ = {;}\nq0 = q0\nF = {q1}\nδ = Función de transición (ver tabla)",
@@ -83,16 +85,12 @@ def analizar_lexico(texto):
     texto_preprocesado = texto.replace(';', ' ;')
     palabras = texto_preprocesado.strip().split()
     
-    cantidad_ya_encontrada = False
+    # Hemos eliminado el tracker "cantidad_ya_encontrada" gracias a la nueva Regex perfecta.
     
     for idx, palabra in enumerate(palabras, 1):
         match_encontrado = False
         for nombre_token, patron in PATRONES:
             if re.match(patron, palabra):
-                # Regla de desambiguación (PRECIO vs CANTIDAD)
-                if nombre_token == 'CANTIDAD' and cantidad_ya_encontrada:
-                    continue
-                
                 tokens.append({
                     'id': idx,
                     'lexema': palabra,
@@ -101,10 +99,6 @@ def analizar_lexico(texto):
                     'valido': True,
                     'detalle': f'Lexema válido para {nombre_token}'
                 })
-                
-                if nombre_token == 'CANTIDAD':
-                    cantidad_ya_encontrada = True
-                    
                 match_encontrado = True
                 break
         
@@ -168,7 +162,7 @@ def index():
         tot_lexemas=tot_lexemas,
         tot_validos=tot_validos,
         tot_errores=tot_errores,
-        teoria=TEORIA_AUTOMATAS # PASAMOS LOS AUTOMATAS A LA VISTA
+        teoria=TEORIA_AUTOMATAS
     )
 
 if __name__ == '__main__':
