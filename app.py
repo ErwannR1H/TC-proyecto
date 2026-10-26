@@ -4,7 +4,6 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 # 1. CENTRALIZACIÓN DE REGLAS
-# Se actualizó la RegEx de PRECIO para requerir obligatoriamente el punto decimal
 REGLAS_LENGUAJE = [
     {"token": "ID_PRODUCTO", "patron": r"^[A-Z]{4}-[0-9]{3}$", "ejemplo": "PROD-100", "desc": "4 letras mayúsculas, guion y 3 números"},
     {"token": "CANTIDAD", "patron": r"^[1-9][0-9]*$", "ejemplo": "50", "desc": "Número entero positivo sin ceros a la izquierda"},
@@ -14,8 +13,13 @@ REGLAS_LENGUAJE = [
 
 PATRONES = [(regla["token"], regla["patron"]) for regla in REGLAS_LENGUAJE]
 
+GRAMATICA = {
+    "Orden": [
+        ("ID_PRODUCTO", "CANTIDAD", "PRECIO", "FIN_ORDEN")
+    ]
+}
+
 # 2. BASE DE DATOS TEÓRICA (QUÍNTUPLAS, TABLAS Y CÓDIGO DE GRAFOS)
-# Se actualizó el autómata de PRECIO: q1 ya no es final, solo q3.
 TEORIA_AUTOMATAS = {
     "ID_PRODUCTO": {
         "quintupla": "Q = {q0, q1, q2, q3, q4, q5, q6, q7, q8}\nΣ = {[A-Z], -, [0-9]}\nq0 = q0\nF = {q8}\nδ = Función de transición (ver tabla)",
@@ -75,17 +79,69 @@ ENUNCIADO = {
     "empresa": "TechLogis - Lima 2026",
     "descripcion": "Análisis determinista basado en AFND/AFD y Gramáticas Libres de Contexto (CFG).",
     "reglas": REGLAS_LENGUAJE,
-    "cfg": "Orden -> ID_PRODUCTO CANTIDAD PRECIO FIN_ORDEN"
+    "cfg": " | ".join(
+        f"Orden -> {' '.join(produccion)}"
+        for produccion in GRAMATICA["Orden"]
+    )
 }
 
 EJEMPLO_CODIGO = "PROD-100 50 12.50;"
+
+
+def reconocer_gramatica(secuencia, gramatica, simbolo_inicial):
+    if simbolo_inicial not in gramatica:
+        raise ValueError(f"El símbolo inicial '{simbolo_inicial}' no existe en la gramática.")
+
+    chart = [set() for _ in range(len(secuencia) + 1)]
+    for produccion in gramatica[simbolo_inicial]:
+        chart[0].add((simbolo_inicial, produccion, 0, 0))
+
+    for posicion in range(len(secuencia) + 1):
+        hubo_cambios = True
+        while hubo_cambios:
+            hubo_cambios = False
+            for no_terminal, produccion, punto, origen in tuple(chart[posicion]):
+                if punto < len(produccion):
+                    siguiente = produccion[punto]
+                    if siguiente in gramatica:
+                        for regla in gramatica[siguiente]:
+                            estado = (siguiente, regla, 0, posicion)
+                            if estado not in chart[posicion]:
+                                chart[posicion].add(estado)
+                                hubo_cambios = True
+                    elif posicion < len(secuencia) and secuencia[posicion] == siguiente:
+                        chart[posicion + 1].add(
+                            (no_terminal, produccion, punto + 1, origen)
+                        )
+                else:
+                    for estado_padre in tuple(chart[origen]):
+                        padre, regla_padre, punto_padre, origen_padre = estado_padre
+                        if (
+                            punto_padre < len(regla_padre)
+                            and regla_padre[punto_padre] == no_terminal
+                        ):
+                            estado = (
+                                padre,
+                                regla_padre,
+                                punto_padre + 1,
+                                origen_padre,
+                            )
+                            if estado not in chart[posicion]:
+                                chart[posicion].add(estado)
+                                hubo_cambios = True
+
+    return any(
+        no_terminal == simbolo_inicial
+        and origen == 0
+        and punto == len(produccion)
+        for no_terminal, produccion, punto, origen in chart[len(secuencia)]
+    )
+
 
 def analizar_lexico(texto):
     tokens = []
     texto_preprocesado = texto.replace(';', ' ;')
     palabras = texto_preprocesado.strip().split()
-    
-    # Hemos eliminado el tracker "cantidad_ya_encontrada" gracias a la nueva Regex perfecta.
     
     for idx, palabra in enumerate(palabras, 1):
         match_encontrado = False
@@ -121,13 +177,16 @@ def analizar_sintactico(tokens):
     if not si_tokens_validos:
         return False, "Error léxico detectado: Existen lexemas no reconocidos."
     
-    secuencia_esperada = ['ID_PRODUCTO', 'CANTIDAD', 'PRECIO', 'FIN_ORDEN']
     secuencia_obtenida = [t['token'] for t in tokens]
     
-    if secuencia_obtenida == secuencia_esperada:
+    if reconocer_gramatica(secuencia_obtenida, GRAMATICA, "Orden"):
         return True, "¡Sintaxis Correcta! Orden válida."
     else:
-        return False, f"Error Sintáctico: Se esperaba {secuencia_esperada} pero se recibió {secuencia_obtenida}."
+        return False, (
+            "Error Sintáctico: la secuencia de tokens "
+            f"{secuencia_obtenida} no puede derivarse desde el símbolo inicial "
+            "'Orden' de la gramática."
+        )
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
