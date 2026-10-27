@@ -92,11 +92,14 @@ def reconocer_gramatica(secuencia, gramatica, simbolo_inicial):
     if simbolo_inicial not in gramatica:
         raise ValueError(f"El símbolo inicial '{simbolo_inicial}' no existe en la gramática.")
 
+    # Cada posición guarda los estados Earley alcanzados tras leer esa cantidad de tokens.
     chart = [set() for _ in range(len(secuencia) + 1)]
     for produccion in gramatica[simbolo_inicial]:
+        # Un estado guarda el no terminal, la regla, el punto actual y dónde empezó.
         chart[0].add((simbolo_inicial, produccion, 0, 0))
 
     for posicion in range(len(secuencia) + 1):
+        # Repetimos hasta que no aparezcan estados nuevos en esta posición.
         hubo_cambios = True
         while hubo_cambios:
             hubo_cambios = False
@@ -104,16 +107,19 @@ def reconocer_gramatica(secuencia, gramatica, simbolo_inicial):
                 if punto < len(produccion):
                     siguiente = produccion[punto]
                     if siguiente in gramatica:
+                        # Predicción: añadimos las reglas del no terminal esperado.
                         for regla in gramatica[siguiente]:
                             estado = (siguiente, regla, 0, posicion)
                             if estado not in chart[posicion]:
                                 chart[posicion].add(estado)
                                 hubo_cambios = True
                     elif posicion < len(secuencia) and secuencia[posicion] == siguiente:
+                        # Lectura: el token coincide, así que avanzamos al siguiente estado.
                         chart[posicion + 1].add(
                             (no_terminal, produccion, punto + 1, origen)
                         )
                 else:
+                    # Compleción: una regla terminada hace avanzar las reglas que la esperaban.
                     for estado_padre in tuple(chart[origen]):
                         padre, regla_padre, punto_padre, origen_padre = estado_padre
                         if (
@@ -130,6 +136,7 @@ def reconocer_gramatica(secuencia, gramatica, simbolo_inicial):
                                 chart[posicion].add(estado)
                                 hubo_cambios = True
 
+    # Aceptamos solo si una regla inicial terminó después de consumir toda la entrada.
     return any(
         no_terminal == simbolo_inicial
         and origen == 0
